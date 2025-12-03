@@ -1,0 +1,24 @@
+{
+  "name": "backend",
+  "version": "1.0.50",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build --minify-whitespace --minify-syntax --target bun --outfile ./dist/index.js src/index.ts",
+    "db:studio": "prisma studio --config ./prisma.config.ts"
+  },
+  "dependencies": {
+    "@elysiajs/jwt": "^1.4.0",
+    "@prisma/adapter-pg": "^7.0.1",
+    "@prisma/client": "^7.0.1",
+    "dotenv": "^17.2.3",
+    "elysia": "latest",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@types/pg": "^8.15.6",
+    "bun-types": "latest",
+    "prisma": "^7.0.1"
+  },
+  "module": "src/index.js"
+}
