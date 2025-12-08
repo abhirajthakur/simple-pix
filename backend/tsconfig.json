@@ -103,6 +103,7 @@
     "paths": {
       "@/lib/*": ["./src/lib/*"],
       "@/generated/*": ["./generated/*"],
+      "@/config/*": ["./src/config/*"],
     }
   }
 }

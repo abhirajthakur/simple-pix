@@ -1,24 +1,17 @@
-import jwt from "@elysiajs/jwt";
+import { jwtConfig } from "@/config/jwt";
 import { Elysia } from "elysia";
 import { AuthModel } from "./model";
-import { Auth } from "./service";
+import { AuthService } from "./service";
 
 export const authRouter = new Elysia({ prefix: "/api/auth" })
-  .use(
-    jwt({
-      name: "jwt",
-      secret: process.env.JWT_SECRET!,
-    }),
-  )
+  .use(jwtConfig)
   .post(
     "/register",
-    async ({ body, cookie: { session }, jwt }) => {
-      const response = await Auth.signUp(body);
+    async ({ body, jwt }) => {
+      const response = await AuthService.signUp(body);
       const token = await jwt.sign({
-        name: response.username,
         id: response.userId,
       });
-      session.value = token;
 
       return {
         token,
@@ -36,14 +29,12 @@ export const authRouter = new Elysia({ prefix: "/api/auth" })
   )
   .post(
     "/login",
-    async ({ body, cookie: { session }, jwt }) => {
-      const response = await Auth.signIn(body);
+    async ({ body, jwt }) => {
+      const response = await AuthService.signIn(body);
       const token = await jwt.sign({
         name: response.username,
         id: response.userId,
       });
-
-      session.value = token;
 
       return {
         token,

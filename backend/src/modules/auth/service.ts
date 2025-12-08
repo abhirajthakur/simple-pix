@@ -2,7 +2,7 @@ import { prisma } from "src/lib/prisma";
 import { status } from "elysia";
 import { AuthModel } from "./model";
 
-export abstract class Auth {
+export abstract class AuthService {
   static async signIn({ username, password }: AuthModel.signInBody) {
     const hashedPassword = await hashPassword(password);
 
