@@ -33,5 +33,12 @@ model Image {
   userId   String
   user     User   @relation(references: [id], fields: [userId])
 
+  // Transformed images
+  parentId        String?
+  parent          Image?  @relation("ImageTransform", fields: [parentId], references: [id])
+  transformations Json?
+  isOriginal      Boolean @default(true)
+
   uploadedAt DateTime @default(now())
+  images     Image[]  @relation("ImageTransform")
 }

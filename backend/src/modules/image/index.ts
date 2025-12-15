@@ -1,8 +1,9 @@
 import { jwtConfig } from "@/config/jwt";
+import { ImagePlain } from "@/generated/prismabox/Image";
 import { Elysia } from "elysia";
+import fs from "fs";
 import { ImageModel } from "./model";
 import { ImageService } from "./service";
-import { ImagePlain } from "@/generated/prismabox/Image";
 
 export const imageRouter = new Elysia({ prefix: "/api/images" })
   .use(jwtConfig)
@@ -38,6 +39,45 @@ export const imageRouter = new Elysia({ prefix: "/api/images" })
       response: {
         200: ImagePlain,
         500: ImageModel.internalServerError,
+      },
+    },
+  )
+  .post(
+    "/:id/transform",
+    async ({ params: { id }, body }) => {
+      const originalImage = await ImageService.findImageById(id);
+      const inputBuffer = fs.readFileSync(originalImage.url);
+
+      const { buffer, metadata } = await ImageService.transformImage(
+        inputBuffer,
+        body,
+      );
+
+      const transformedImage = await ImageService.saveTransformedImage({
+        originalImage,
+        buffer,
+        metadata,
+        transformations: body.transformations,
+      });
+
+      return {
+        id: transformedImage.id,
+        url: transformedImage.url,
+        width: transformedImage.width,
+        height: transformedImage.height,
+        size: transformedImage.size,
+        parentId: transformedImage.parentId,
+        transformations: transformedImage.transformations as Record<
+          string,
+          any
+        >,
+      };
+    },
+    {
+      body: ImageModel.transformImageBody,
+      response: {
+        404: ImageModel.imageNotFound,
+        200: ImageModel.transformImageResponse,
       },
     },
   );
