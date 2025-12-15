@@ -197,7 +197,6 @@ async function uploadToCloudinary(fileBuffer: Buffer): Promise<{
       },
     );
 
-    console.log("UPLOAD RESULT", uploadResult);
     return {
       url: uploadResult.secure_url,
       width: uploadResult.width,

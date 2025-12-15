@@ -1,5 +1,6 @@
 import { jwtConfig } from "@/config/jwt";
 import { ImagePlain } from "@/generated/prismabox/Image";
+import { prisma } from "@/lib/prisma";
 import { Elysia } from "elysia";
 import fs from "fs";
 import { ImageModel } from "./model";
@@ -46,7 +47,8 @@ export const imageRouter = new Elysia({ prefix: "/api/images" })
     "/:id/transform",
     async ({ params: { id }, body }) => {
       const originalImage = await ImageService.findImageById(id);
-      const inputBuffer = fs.readFileSync(originalImage.url);
+      const image = await fetch(originalImage.url);
+      const inputBuffer = Buffer.from(await image.arrayBuffer());
 
       const { buffer, metadata } = await ImageService.transformImage(
         inputBuffer,
@@ -78,6 +80,49 @@ export const imageRouter = new Elysia({ prefix: "/api/images" })
       response: {
         404: ImageModel.imageNotFound,
         200: ImageModel.transformImageResponse,
+      },
+    },
+  )
+  .get(
+    "/",
+    async ({ query, userId }) => {
+      const page = query.page ?? 1;
+      const limit = query.limit ?? 10;
+      const skip = (page - 1) * limit;
+
+      const [total, images] = await Promise.all([
+        prisma.image.count({ where: { userId } }),
+        prisma.image.findMany({
+          where: { userId },
+          orderBy: { uploadedAt: "desc" },
+          skip,
+          take: limit,
+        }),
+      ]);
+
+      const data = images.map((img) => ({
+        id: img.id,
+        url: img.url,
+        width: img.width,
+        height: img.height,
+        mimeType: img.mimeType,
+        size: img.size,
+        uploadedAt: img.uploadedAt.toISOString(),
+        isOriginal: img.isOriginal,
+        parentId: img.parentId,
+      }));
+
+      return {
+        total,
+        page,
+        limit,
+        data,
+      };
+    },
+    {
+      query: ImageModel.listImagesQuery,
+      response: {
+        200: ImageModel.imageListResponse,
       },
     },
   );

@@ -51,6 +51,32 @@ export namespace ImageModel {
   });
   export type transformImageResponse = typeof transformImageResponse.static;
 
+  export const listImagesQuery = t.Object({
+    page: t.Optional(t.Number({ default: 1 })),
+    limit: t.Optional(t.Number({ default: 10 })),
+  });
+  export type listImagesQuery = typeof listImagesQuery.static;
+
+  export const imageListItem = t.Object({
+    id: t.String(),
+    url: t.String(),
+    width: t.Nullable(t.Number()),
+    height: t.Nullable(t.Number()),
+    mimeType: t.String(),
+    size: t.Number(),
+    uploadedAt: t.String(),
+    isOriginal: t.Boolean(),
+    parentId: t.Nullable(t.String()),
+  });
+
+  export const imageListResponse = t.Object({
+    total: t.Number(),
+    page: t.Number(),
+    limit: t.Number(),
+    data: t.Array(imageListItem),
+  });
+  export type imageListResponse = typeof imageListResponse.static;
+
   export const imageNotFound = t.Literal("Image not found");
   export type imageNotFound = typeof imageNotFound.static;
 
